@@ -1,0 +1,50 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('.main-toggle').on('click', function() {
+            $(this).toggleClass('on off');
+            var newStatus = $(this).hasClass('on') ? '0' : '1';
+            var contactId = $(this).parent().data('org-id');
+            
+            $.ajax({
+                type: 'POST',
+                url: '<?= base_url('jobs/updatestatus'); ?>',
+                data: {
+                    contact_id: contactId,
+                    new_status: newStatus
+                },
+                success: function(response) {
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    });
+</script>
+
+
+
+
+
+
+// toggle btn
+<td>
+     <a class="org-status" data-org-id="<?= $job['id'] ?>" data-status="<?= $job['status'] ?>">
+          <div class="main-toggle main-toggle-success <?= ($job['status'] == 0) ? 'on' : 'off'; ?>">
+               <span></span>
+          </div>
+      </a>
+</td>
+
+
+
+// controller
+    public function updatestatus() {
+        $model = new JobModel();
+        $contactId = $this->request->getPost('contact_id');
+        $newStatus = $this->request->getPost('new_status');
+        $model->update($contactId, ['status' => $newStatus]);
+        return $this->response->setJSON(['status' => 'success', 'new_status' => $newStatus]);
+    }
